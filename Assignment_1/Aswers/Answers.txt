@@ -1,0 +1,114 @@
+-----------------------------------------------------
+1. What genre is the movie CopyCat in?
+
+A: [u'Crime', u'Drama', u'Horror', u'Mystery', u'Thriller']
+
+>>>cursor = db.movies.find({"Title": {'$regex': 'copycat', '$options': 'i'}})
+>>>for doc in cursor:
+    print(doc['Genres'])
+
+#find "copycat" in all titles then display its genres.
+-----------------------------------------------------
+2. What genre has the most movies?
+
+A: {u'count': 5339, u'_id': u'Drama'}
+
+>>>pipeline = [
+    {'$unwind': '$Genres'},
+    {'$group': {'_id': '$Genres', 'count': {'$sum': 1}}},
+    {'$sort': SON([('count', -1)])},
+    {'$limit': 1} 
+]
+>>>for doc in movies.aggregate(pipeline):
+    print(doc)
+
+#compute the sum of different genres in descending order then choose the first one
+-----------------------------------------------------
+3. What tags did user 146 use to describe the movie 2001: A Space Odyssey?
+
+A: Arthur C. Clarke
+artificial intelligence
+based on a book
+
+>>>cursor = movies.find_one({"Title": {'$regex': '2001: A Space Odyssey', '$options': 'i'}})['MovieID']
+>>>for item in tags.find({"MovieID": cursor, "UserID": 146}):
+    print(item['Tag'])
+
+#find the movieid of 2001: A Space Odyssey in movies database then look it up in tags database
+-----------------------------------------------------
+4. What are the top 5 movies with the highest avg rating?
+
+A: Satan's Tango (Sátántangó) (1994)
+Blue Light, The (Das Blaue Licht) (1932)
+Shadows of Forgotten Ancestors (1964)
+Fighting Elegy (Kenka erejii) (1966)
+Sun Alley (Sonnenallee) (1999)
+
+>>>pipeline = [
+    {'$group': {'_id': '$MovieID', 'avg_rating': {'$avg': '$Rating'}}},
+    {'$sort': SON([('avg_rating', -1)])},
+    {'$limit': 5}
+]
+>>>for doc in ratings.aggregate(pipeline):
+    print(movies.find_one({'MovieID': doc['_id']})['Title'])
+
+#compute the avgerage rating of all movies in descending order then show the first 5 ones' names from movies database
+-----------------------------------------------------
+5. What is the highest avg rating possible?
+
+A: 5.0
+
+>>>pipeline = [
+    {'$group': {'_id': '$MovieID', 'avg_rating': {'$avg': '$Rating'}}},
+    {'$sort': SON([('avg_rating', -1)])},
+    {'$limit': 1}
+]
+>>>for doc in ratings.aggregate(pipeline):
+    print(doc['avg_rating'])
+
+#compute the avgerage rating of all movies in descending order then show the first one
+-----------------------------------------------------
+6. Write 3 different queries of your choice to demonstrate that your data storage is working.
+-----------------------------------------------------
+6a. Which movie is rated most frequently?
+
+A: Pulp Fiction (1994)
+
+>>>pipeline = [
+    {'$group': {'_id': '$MovieID', 'count': {'$sum': 1}}},
+    {'$sort': SON([('count', -1)])},
+    {'$limit': 1}
+]
+>>>for doc in ratings.aggregate(pipeline):
+    print (movies.find_one({'MovieID': doc['_id']})['Title'])
+
+#find the movieid with the maximum count in ratings database then lookup its name in movies database
+-----------------------------------------------------
+6b. Who is the most active user?
+
+A: The most active userid = 59269
+
+>>>pipeline = [
+    {'$group': {'_id': '$UserID', 'count': {'$sum': 1}}},
+    {'$sort': SON([('count', -1)])},
+    {'$limit': 1}
+]
+>>>for doc in ratings.aggregate(pipeline):
+    print ('The most active userid = ' + str(doc['_id']))
+
+#find the userid with the maximum count in ratings database
+-----------------------------------------------------
+6c. What is the most frequently used tag?
+
+A: Tumey's DVDs
+
+>>>pipeline = [
+    {'$group': {'_id': '$Tag', 'count': {'$sum': 1}}},
+    {'$sort': SON([('count', -1)])},
+    {'$limit': 1}
+]
+>>>for doc in tags.aggregate(pipeline):
+    print(doc['_id'])
+
+#find the tag name with the maximum count in tags database    
+-----------------------------------------------------

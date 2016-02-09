@@ -1,0 +1,27 @@
+In this stage, we use "Movies.py", "Ratings.py", and "Tags.py" to import the dataset to the MongoDB with the following command in Terminal.app on OSX:
+
+$ python movies.py < movies.dat
+$ python tags.py < tags.dat
+$ python ratings.py < ratings.dat
+
+
+
+To test if the data are successfully imported:
+
+>>> db.movies.count()
+10681
+
+>>> db.ratings.count()
+10000054
+
+>>> db.tags.count()
+95580
+
+>>> db.movies.find_one()
+{u'Genres': [u'Adventure', u'Animation', u'Children', u'Comedy', u'Fantasy'], u'_id': ObjectId('56b8d1771216864d6300a4d6'), u'MovieID': 1, u'Title': u'Toy Story (1995)'}
+
+>>> db.ratings.find_one()
+{u'Rating': 5.0, u'UserID': 1, u'_id': ObjectId('56b834d21216864b8ffcc7f7'), u'MovieID': 122, u'Timestamp': datetime.datetime(1996, 8, 2, 7, 24, 6)}
+
+>>> db.tags.find_one()
+{u'UserID': 15, u'Tag': u'excellent!', u'_id': ObjectId('56b832ce1216864b8488d20a'), u'MovieID': 4973, u'Timestamp': datetime.datetime(2008, 7, 4, 11, 17, 10)}
